@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "28704908170",
+    "project_id": "projetoreceitas-45042",
+    "storage_bucket": "projetoreceitas-45042.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:28704908170:android:c51d84896f4db2b3741e73",
+        "android_client_info": {
+          "package_name": "com.unifebe.edu.projetoreceitas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9-CAGt8is__3CUtZFCZMI3FTsU9pdnfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
