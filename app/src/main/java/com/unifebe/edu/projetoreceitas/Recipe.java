@@ -16,6 +16,9 @@ public class Recipe {
         this.firebaseKey = null;
         this.synced = false;
     }
+    public Recipe() {
+        // Construtor vazio exigido pelo Firebase
+    }
 
     // Construtor completo (para recuperar do DB)
     public Recipe(int id, String title, String ingredients, String instructions, String firebaseKey, boolean synced) {

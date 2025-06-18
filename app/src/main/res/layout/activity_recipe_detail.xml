@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Título da receita -->
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="match_parent"
@@ -17,23 +18,46 @@
             android:text="Título da Receita"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:paddingBottom="12dp"/>
+            android:paddingBottom="24dp"/>
 
+        <!-- Título ingredientes -->
+        <TextView
+            android:id="@+id/labelIngredients"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ingredientes"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp"/>
+
+        <!-- Conteúdo ingredientes -->
         <TextView
             android:id="@+id/ingredientsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ingredientes"
-            android:textSize="18sp"
-            android:paddingBottom="12dp"/>
+            android:text="Lista de ingredientes aqui"
+            android:textSize="16sp"
+            android:paddingBottom="24dp"/>
 
+        <!-- Título modo de preparo -->
+        <TextView
+            android:id="@+id/labelInstructions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Modo de Preparo"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp"/>
+
+        <!-- Conteúdo modo de preparo -->
         <TextView
             android:id="@+id/instructionsTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Modo de Preparo"
-            android:textSize="18sp"
+            android:text="Modo de preparo aqui"
+            android:textSize="16sp"
             android:paddingBottom="12dp"/>
+
     </LinearLayout>
 
 </ScrollView>

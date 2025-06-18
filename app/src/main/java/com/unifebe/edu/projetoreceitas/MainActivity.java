@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
         loadRecipesFromDb();
         if (isConnected()) {
             syncWithFirebase();
+            fetchFromFirebase();
         }
     }
 
@@ -129,6 +131,32 @@ public class MainActivity extends AppCompatActivity implements RecipeAdapter.OnR
                 })
                 .setNegativeButton("Não", null)
                 .show();
+    }
+    private void fetchFromFirebase() {
+        DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("recipes");
+
+        firebaseRef.get().addOnSuccessListener(snapshot -> {
+            for (DataSnapshot recipeSnap : snapshot.getChildren()) {
+                Recipe recipe = recipeSnap.getValue(Recipe.class);
+                if (recipe != null && !recipeAlreadyExists(recipe)) {
+                    dao.insertRecipe(recipe); // Salva localmente
+                }
+            }
+            loadRecipesFromDb(); // Atualiza a lista
+        }).addOnFailureListener(e -> {
+            Toast.makeText(MainActivity.this, "Erro ao buscar dados do Firebase", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private boolean recipeAlreadyExists(Recipe recipe) {
+        List<Recipe> localRecipes = dao.getAllRecipes();
+        for (Recipe local : localRecipes) {
+            if (local.title.equalsIgnoreCase(recipe.title) &&
+                    local.ingredients.equalsIgnoreCase(recipe.ingredients)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
