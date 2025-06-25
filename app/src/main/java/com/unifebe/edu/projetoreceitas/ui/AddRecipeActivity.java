@@ -1,4 +1,4 @@
-package com.unifebe.edu.projetoreceitas;
+package com.unifebe.edu.projetoreceitas.ui;
 
 import android.os.Bundle;
 import android.widget.Button;
@@ -9,7 +9,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.unifebe.edu.projetoreceitas.R;
+import com.unifebe.edu.projetoreceitas.model.Recipe;
+import com.unifebe.edu.projetoreceitas.DAO.RecipeDAO;
 
+/**
+ * Activity responsável pela interface de cadastro de receitas.
+ * Permite inserir uma receita localmente no banco SQLite e sincronizar com Firebase quando conectado.
+ */
 public class AddRecipeActivity extends AppCompatActivity {
 
     private EditText titleEditText, ingredientsEditText, instructionsEditText;
@@ -22,50 +29,60 @@ public class AddRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_recipe);
 
+        // Inicializa componentes da interface
         titleEditText = findViewById(R.id.titleEditText);
         ingredientsEditText = findViewById(R.id.ingredientsEditText);
         instructionsEditText = findViewById(R.id.instructionsEditText);
         saveButton = findViewById(R.id.saveButton);
 
+        // Inicializa DAO para acesso SQLite
         recipeDAO = new RecipeDAO(this);
 
+        // Configura ação do botão salvar
         saveButton.setOnClickListener(v -> {
             String title = titleEditText.getText().toString().trim();
             String ingredients = ingredientsEditText.getText().toString().trim();
             String instructions = instructionsEditText.getText().toString().trim();
 
+            // Validação básica dos campos
             if (title.isEmpty() || ingredients.isEmpty() || instructions.isEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Cria receita com o construtor correto (6 parâmetros)
+            // Cria um objeto Recipe com id 0 (novo), chave firebase null, e não sincronizado
             Recipe recipe = new Recipe(0, title, ingredients, instructions, null, false);
 
-            // Insere no SQLite (offline)
+            // Insere a receita no banco local SQLite
             long insertedId = recipeDAO.insertRecipe(recipe);
             recipe.id = (int) insertedId;
 
-            // Sincroniza no Firebase (se conectado)
+            // Verifica conexão com internet para sincronizar no Firebase
             if (isConnected()) {
                 DatabaseReference firebaseRef = FirebaseDatabase.getInstance().getReference("recipes");
                 String key = firebaseRef.push().getKey();
+
                 if (key != null) {
-                    // Cria objeto para Firebase (sem id local)
+                    // Prepara objeto para Firebase (id local zero, synced true)
                     Recipe firebaseRecipe = new Recipe(0, recipe.title, recipe.ingredients, recipe.instructions, null, true);
-                    firebaseRef.child(key).setValue(firebaseRecipe).addOnSuccessListener(unused -> {
-                        // Atualiza a receita local com a chave do Firebase e marca como sincronizada
-                        recipeDAO.updateFirebaseKeyAndSync(recipe.id, key);
-                        runOnUiThread(() -> Toast.makeText(this, "Receita sincronizada no Firebase!", Toast.LENGTH_SHORT).show());
-                        setResult(RESULT_OK);
-                        finish();
-                    }).addOnFailureListener(e -> {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao sincronizar no Firebase", Toast.LENGTH_SHORT).show());
-                        setResult(RESULT_OK);
-                        finish();
-                    });
+
+                    // Insere no Firebase e escuta sucesso ou falha
+                    firebaseRef.child(key).setValue(firebaseRecipe)
+                            .addOnSuccessListener(unused -> {
+                                // Atualiza localmente com chave Firebase e flag sincronizada
+                                recipeDAO.updateFirebaseKeyAndSync(recipe.id, key);
+                                runOnUiThread(() -> Toast.makeText(this, "Receita sincronizada no Firebase!", Toast.LENGTH_SHORT).show());
+                                setResult(RESULT_OK);
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                runOnUiThread(() -> Toast.makeText(this, "Erro ao sincronizar no Firebase", Toast.LENGTH_SHORT).show());
+                                setResult(RESULT_OK);
+                                finish();
+                            });
                 }
             } else {
+                // Sem conexão, salva local e avisa o usuário que sincronizará depois
                 Toast.makeText(this, "Receita salva localmente. Será sincronizada quando online.", Toast.LENGTH_SHORT).show();
                 setResult(RESULT_OK);
                 finish();
@@ -73,6 +90,10 @@ public class AddRecipeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Verifica se o dispositivo está conectado à internet.
+     * @return true se conectado, false caso contrário.
+     */
     private boolean isConnected() {
         android.net.ConnectivityManager cm = (android.net.ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         if (cm != null) {

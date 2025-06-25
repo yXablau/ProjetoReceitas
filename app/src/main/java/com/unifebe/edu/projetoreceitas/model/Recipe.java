@@ -1,4 +1,4 @@
-package com.unifebe.edu.projetoreceitas;
+package com.unifebe.edu.projetoreceitas.model;
 
 public class Recipe {
     public int id;
